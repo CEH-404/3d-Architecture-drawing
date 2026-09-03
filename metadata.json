@@ -1,0 +1,6 @@
+{
+  "name": "3D Architectural Shell Visualizer",
+  "description": "Interactive 3D architectural visualizer for a 13'6\" × 12'4\" × 12'0\" room shell with entrance doorway, centered window, and structural privacy partition with sightline analysis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

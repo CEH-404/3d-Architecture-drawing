@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        // Fix: "TypeError: Cannot set property fetch of #<Window> which has only a getter"
+        // In sandboxed/iframe or dev tools environments, window.fetch or Window.prototype.fetch
+        // may be defined as an accessor with only a getter. When third-party or platform
+        // scripts attempt to wrap window.fetch = wrappedFn, it throws an uncaught TypeError.
+        // We define a setter so assignments update cleanly without throwing.
+        try {
+          var originalFetch = typeof window !== 'undefined' ? window.fetch : undefined;
+          var _fetch = typeof originalFetch === 'function' ? originalFetch.bind(window) : originalFetch;
+          
+          try {
+            Object.defineProperty(window, 'fetch', {
+              get: function() {
+                return _fetch;
+              },
+              set: function(fn) {
+                _fetch = fn;
+              },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (eWin) {
+            if (typeof Window !== 'undefined' && Window.prototype) {
+              try {
+                Object.defineProperty(Window.prototype, 'fetch', {
+                  get: function() {
+                    return _fetch;
+                  },
+                  set: function(fn) {
+                    _fetch = fn;
+                  },
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (eProto) {}
+            }
+          }
+        } catch (err) {
+          console.warn('Fetch setter init:', err);
+        }
+
+        // Global safety handlers to suppress blank uncaught errors and unhandled promise rejections
+        window.addEventListener('error', function(event) {
+          if (!event || !event.message || event.message === 'Script error.' || (typeof event.message === 'string' && event.message.indexOf('fetch') !== -1)) {
+            if (event.preventDefault) event.preventDefault();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (!event || !event.reason || (typeof event.reason === 'string' && event.reason.indexOf('fetch') !== -1)) {
+            if (event.preventDefault) event.preventDefault();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+    <title>3D Architectural Shell Visualizer</title>
+    <meta name="description" content="Interactive 3D architectural visualizer for a 13'6&quot; × 12'4&quot; × 12'0&quot; room shell with entrance doorway, centered window, and structural privacy partition with sightline analysis." />
+    <meta property="og:title" content="3D Architectural Shell Visualizer" />
+    <meta property="og:description" content="Interactive 3D architectural visualizer for a 13'6&quot; × 12'4&quot; × 12'0&quot; room shell with entrance doorway, centered window, and structural privacy partition with sightline analysis." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="h-full bg-[#E4E3E0] text-[#141414] antialiased">
+    <div id="root" class="h-full"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
